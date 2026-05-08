@@ -106,29 +106,6 @@ The script `extract_aneurysm_locations.py` then reads these NPZ files, identifie
 
 ## ⚙️ Full Pipeline Architecture
 
-```mermaid
-graph TD
-    A[DICOM Series] -->|dicom2nifti| B[Raw NIfTI .nii.gz]
-    B -->|Resample 0.5mm isotropic| C[Standardized Volume]
-    C -->|N4 Bias Field Correction| D[Bias-Corrected Volume]
-    D -->|Skull Strip - Otsu Fallback| E[Brain-Only Volume + Mask]
-    E -->|Z-Score Normalization| F[Normalized Volume]
-    F -->|Frangi Vesselness Filter| G[Vesselness Map 0-1]
-
-    G -->|Threshold CC + LoG Blobs| H[Candidate Regions]
-    H -->|Deduplicate 4mm radius| I[Unique Candidates]
-    I -->|Scale Localizer Coords + 10mm Match| J[Labeled Candidates]
-    J -->|55 Radiomic Features| K[features.csv]
-
-    K -->|Drop Inf-NaN-Constant-Correlated| L[Cleaned Features]
-    L -->|MI + ANOVA + RF + RFE| M[4-Method Ranking]
-    M -->|Consensus - 2 votes| N[features_selected.csv]
-    N -->|Patient-Level Split + SMOTE| O[Train / Val Sets]
-    O -->|LR, RF, XGBoost, LightGBM, SVM| P[Trained Models]
-    P -->|AUC-ROC, PR, FROC + SHAP| Q[Evaluation + Explainability]
-```
-
----
 
 ## 🧪 Stage 1 — DICOM → NIfTI Conversion
 
